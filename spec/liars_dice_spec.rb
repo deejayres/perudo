@@ -22,10 +22,17 @@ RSpec.describe  Game do
   end
 
   describe '#claim' do
-    it 'returns the probability that a given bid is correct as a string' do
-      claim = @game.claim(dice: 5)
+    it 'returns the probability that a given bid is correct as a string with no moves made' do
+      claim = @game.claim(dice: 5, value: 4)
 
       expect(claim).to eq("23.13%")
+    end
+
+    it 'correctly calculates probability after dice have been played' do
+      @game.move(player: 2, dice: 2, value: 4)
+      claim = @game.claim(dice: 8, value: 4)
+
+      expect(claim).to eq("6.53%")
     end
   end
 

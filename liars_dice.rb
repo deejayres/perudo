@@ -12,15 +12,17 @@ class Game
 
   def move(player:, dice:, value:)
     currentplayer = @players[player - 1]
-    currentplayer[:dice_in_hand].reject! { |dice| dice == value }
+    currentplayer[:dice_in_hand].reject! { |die| die == value }
     currentplayer[:dice_in_hand] = roll(currentplayer[:dice_in_hand].length)
     dice.times { @played_dice << value }
     @unplayed_dice = update_dice
-    p "Player #{player} has put #{dice} #{value}s on the board."
   end
 
-  def claim(dice:)
-    prob = total_prob(dice)
+  def claim(dice:, value:)
+    known_dice = @played_dice.select { |die| die == value }
+    ttl = @unplayed_dice.length
+    match = dice - known_dice.length
+    prob = total_prob(ttl, match)
     percentify(prob)
   end
 
@@ -64,13 +66,13 @@ class Game
     end
   end
 
-  def single_prob(match)
-    (fac(@total_dice) / (fac(match) * fac(@total_dice-match))) * (1.0/6.0) ** match * (5.0/6.0) ** (@total_dice-match)
+  def single_prob(ttl, match)
+    (fac(ttl) / (fac(match) * fac(ttl-match))) * (1.0/6.0) ** match * (5.0/6.0) ** (ttl-match)
   end
 
-  def total_prob(match)
-    (match..@total_dice).inject(0) do |total, each|
-      total += single_prob(each)
+  def total_prob(ttl, match)
+    (match..ttl).inject(0) do |sum, each|
+      sum += single_prob(ttl, each)
     end
   end
 
@@ -81,5 +83,4 @@ class Game
       "#{(prob * 100).round(2)}%"
     end
   end
-
 end
